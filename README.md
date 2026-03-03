@@ -22,7 +22,7 @@ Every AI agent has a **system prompt** - the hidden instructions that tell it ho
 1. **Extract your prompt** - trick the agent into revealing its secret instructions
 2. **Inject new instructions** - override the agent's behavior and make it do something it shouldn't
 
-AgentSeal tests your agent against both of these attacks using 150+ techniques (up to 196 with MCP and RAG probes). You get:
+AgentSeal tests your agent against both of these attacks using 150+ techniques (up to ~301 with MCP, RAG, and genome probes). You get:
 
 - A **trust score from 0 to 100** - how secure your agent is
 - A **detailed breakdown** of which attacks succeeded and which were blocked
@@ -116,7 +116,7 @@ A score of **75+** means your agent is solid. **Below 50** means serious problem
 ## How It Works
 
 ```
-┌─────────────┐  150-196 attack probes     ┌──────────────┐
+┌─────────────┐  150-301 attack probes     ┌──────────────┐
 │             │ ─────────────────────────>│              │
 │  AgentSeal  │                           │  Your Agent  │
 │             │ <─────────────────────────│              │
