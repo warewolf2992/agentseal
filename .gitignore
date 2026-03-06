@@ -36,6 +36,12 @@ htmlcov/
 # AgentSeal local config
 .agentseal/
 
+# JavaScript/Node.js
+node_modules/
+agentseal/js/dist/
+agentseal/js/node_modules/
+agentseal/js/coverage/
+
 # Pro features (not open source)
 agentseal/probes/mcp_tools.py
 agentseal/probes/rag_poisoning.py
