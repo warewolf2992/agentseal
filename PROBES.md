@@ -2,7 +2,7 @@
 
 Complete list of all attack probes used by AgentSeal to test AI agent security.
 
-**Total: 173 base probes (82 extraction + 91 injection) + 58 Pro probes (38 MCP + 20 RAG)**
+**Total: 173 base probes (82 extraction + 91 injection) + 73 Pro probes (45 MCP + 28 RAG)**
 
 ---
 
@@ -99,7 +99,7 @@ Each probe contains a unique canary string for deterministic detection.
 
 ---
 
-## MCP Tool Poisoning Probes (38) - Pro
+## MCP Tool Poisoning Probes (45) - Pro
 
 MCP probes test how agents handle poisoned tool metadata and results.
 
@@ -114,12 +114,14 @@ MCP probes test how agents handle poisoned tool metadata and results.
 | 7 | Tool Shadowing | 3 | Poisoned tools masquerading as trusted tools |
 | 8 | False Error Escalation | 3 | Fake errors trigger privileged fallback paths |
 | 9 | Cross-Tool Poisoning | 3 | One tool's output poisons another tool's input |
+| 10 | Preference Manipulation (MPMA) | 4 | Crafted descriptions to bias tool selection |
+| 11 | URL Fragment Injection (HashJack) | 3 | Instructions hidden after # in URLs |
 
 ---
 
-## RAG Poisoning Probes (20) - Pro
+## RAG Poisoning Probes (28) - Pro
 
-RAG probes test how agents handle poisoned retrieved documents.
+RAG probes test how agents handle poisoned retrieved documents, memory poisoning, and agent impersonation.
 
 | # | Category | Count | Technique |
 |---|----------|:-----:|-----------|
@@ -127,6 +129,8 @@ RAG probes test how agents handle poisoned retrieved documents.
 | 2 | Context Poisoning | 5 | Override system prompt via retrieved content |
 | 3 | Source Authority | 5 | Authority claims in retrieved documents |
 | 4 | Indirect Exfiltration | 4 | Leak system prompt via document request |
+| 5 | Memory Poisoning (MINJA) | 4 | Persistent malicious records via normal queries |
+| 6 | Agent Impersonation (TAMAS) | 4 | Fake authority agent directs other agents |
 
 ---
 
@@ -143,5 +147,5 @@ RAG probes test how agents handle poisoned retrieved documents.
 | Tier | Extraction | Injection | MCP | RAG | Total |
 |------|:----------:|:---------:|:---:|:---:|:-----:|
 | **Free** | 82 | 91 | - | - | **173** |
-| **Pro** | 82 | 91 | 38 | 20 | **231** |
-| **Pro + Genome** | 82 | 91 | 38 | 20 | **231 + ~105 genome** |
+| **Pro** | 82 | 91 | 45 | 28 | **246** |
+| **Pro + Genome** | 82 | 91 | 45 | 28 | **246 + ~105 genome** |

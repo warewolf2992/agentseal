@@ -20,7 +20,7 @@ AgentSeal sends 173 automated attack probes at your agent and tells you exactly 
 |---|---|---|
 | **Price** | Free | Free tier available |
 | **Setup** | Bring your own API keys | Zero configuration |
-| **Probes** | 173 (extraction + injection) | 231 (+ MCP + RAG) |
+| **Probes** | 173 (extraction + injection) | 246 (+ MCP + RAG) |
 | **Mutations** | 8 adaptive transforms | 8 adaptive transforms |
 | **Reports** | JSON output | Interactive dashboard + PDF |
 | **History** | Manual tracking | Full scan history and trends |
@@ -216,8 +216,8 @@ The open source scanner covers 173 probes. [AgentSeal Pro](https://agentseal.org
 
 | Feature | What it does |
 |---|---|
-| **MCP tool poisoning** (+38 probes) | Tests for hidden instructions in tool descriptions, malicious return values, cross-tool privilege escalation, rug pulls, tool shadowing, false error escalation |
-| **RAG poisoning** (+20 probes) | Tests for poisoned documents in retrieval pipelines |
+| **MCP tool poisoning** (+45 probes) | Tests for hidden instructions in tool descriptions, malicious return values, cross-tool privilege escalation, rug pulls, tool shadowing, false error escalation, preference manipulation (MPMA), URL fragment injection (HashJack) |
+| **RAG poisoning** (+28 probes) | Tests for poisoned documents in retrieval pipelines, memory poisoning (MINJA), agent impersonation (TAMAS) |
 | **Behavioral genome mapping** | Maps your agent's decision boundaries with ~105 targeted probes |
 | **PDF security reports** | Exportable reports for compliance and audits |
 | **Dashboard** | Real-time scan progress, history, trends, and remediation guidance |
