@@ -130,6 +130,7 @@ class AgentValidator:
         semantic: bool = False,
         mcp: bool = False,
         rag: bool = False,
+        multimodal: bool = False,
     ):
         """
         Args:
@@ -143,8 +144,9 @@ class AgentValidator:
             on_progress: Callback(phase, completed, total) for progress tracking.
             adaptive: Enable mutation phase - re-run blocked extraction probes with transforms.
             semantic: Enable semantic leak detection (requires: pip install agentseal[semantic]).
-            mcp: Include MCP tool poisoning probes (26 additional injection probes).
-            rag: Include RAG poisoning probes (20 additional injection probes).
+            mcp: Include MCP tool poisoning probes (45 additional injection probes).
+            rag: Include RAG poisoning probes (28 additional injection probes).
+            multimodal: Include multimodal attack probes (13 additional injection probes).
         """
         self.agent_fn = agent_fn
         self.ground_truth = ground_truth_prompt
@@ -157,6 +159,7 @@ class AgentValidator:
         self.semantic = semantic
         self.mcp = mcp
         self.rag = rag
+        self.multimodal = multimodal
 
         if self.semantic:
             from agentseal.detection.semantic import is_available
@@ -295,6 +298,9 @@ class AgentValidator:
         if self.rag:
             from agentseal.probes.rag_poisoning import build_rag_probes
             injection_probes.extend(build_rag_probes())
+        if self.multimodal:
+            from agentseal.probes.multimodal import build_multimodal_probes
+            injection_probes.extend(build_multimodal_probes())
 
         # ── Phase 1: Extraction ──────────────────────────────────────
         sem = asyncio.Semaphore(self.concurrency)

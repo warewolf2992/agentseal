@@ -22,7 +22,7 @@ Every AI agent has a **system prompt** - the hidden instructions that tell it ho
 1. **Extract your prompt** - trick the agent into revealing its secret instructions
 2. **Inject new instructions** - override the agent's behavior and make it do something it shouldn't
 
-AgentSeal tests your agent against both of these attacks using 173+ techniques (up to ~351 with MCP, RAG, and genome probes). You get:
+AgentSeal tests your agent against both of these attacks using 173+ techniques (up to ~364 with MCP, RAG, multimodal, and genome probes). You get:
 
 - A **trust score from 0 to 100** - how secure your agent is
 - A **detailed breakdown** of which attacks succeeded and which were blocked
@@ -148,9 +148,10 @@ AgentSeal supports multiple scan modes you can combine depending on your agent's
 | `agentseal watch` | 5 | Canary regression scan - fast check with baseline comparison | Free |
 | `agentseal scan --mcp` | 218 | + 45 MCP tool poisoning probes | Pro |
 | `agentseal scan --rag` | 201 | + 28 RAG poisoning probes | Pro |
-| `agentseal scan --mcp --rag` | 246 | Full attack surface - all probe categories | Pro |
+| `agentseal scan --multimodal` | 186 | + 13 multimodal attack probes (image, audio, stego) | Pro |
+| `agentseal scan --mcp --rag --multimodal` | 259 | Full attack surface - all probe categories | Pro |
 | `agentseal scan --genome` | 173 + ~105 | + Behavioral genome mapping - finds decision boundaries | Pro |
-| `agentseal scan --mcp --rag --genome` | 246 + ~105 | Everything - the most thorough scan available | Pro |
+| `agentseal scan --mcp --rag --multimodal --genome` | 259 + ~105 | Everything - the most thorough scan available | Pro |
 
 ---
 
@@ -171,6 +172,7 @@ The core scanner is **completely free** and open source. Pro unlocks advanced pr
 | Defense fingerprinting | Yes | Yes |
 | **MCP tool poisoning probes** (`--mcp`, +45 probes) | - | Yes |
 | **RAG poisoning probes** (`--rag`, +28 probes) | - | Yes |
+| **Multimodal attack probes** (`--multimodal`, +13 probes) | - | Yes |
 | **Behavioral genome mapping** (`--genome`) | - | Yes |
 | **PDF security assessment report** (`--report`) | - | Yes |
 | **Dashboard** (track security over time, `--upload`) | - | Yes |
@@ -529,7 +531,7 @@ Only if you're testing against a cloud model (OpenAI, Anthropic). If you use [Ol
 
 ### What's the difference between free and Pro?
 
-Free gives you the full 173-probe scanner with adaptive mutations, regression monitoring, interactive fix flow, JSON/SARIF output, and CI/CD integration. Pro adds MCP tool poisoning probes (+45), RAG poisoning probes (+28), behavioral genome mapping, PDF reports, and a dashboard. See the [comparison table](#free-vs-pro).
+Free gives you the full 173-probe scanner with adaptive mutations, regression monitoring, interactive fix flow, JSON/SARIF output, and CI/CD integration. Pro adds MCP tool poisoning probes (+45), RAG poisoning probes (+28), multimodal attack probes (+13), behavioral genome mapping, PDF reports, and a dashboard. See the [comparison table](#free-vs-pro).
 
 ### Can I contribute new attack probes?
 

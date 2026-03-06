@@ -45,5 +45,6 @@ js/coverage/
 # Pro features (not open source)
 python/agentseal/probes/mcp_tools.py
 python/agentseal/probes/rag_poisoning.py
+python/agentseal/probes/multimodal.py
 python/agentseal/genome.py
 python/agentseal/report.py

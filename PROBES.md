@@ -2,7 +2,7 @@
 
 Complete list of all attack probes used by AgentSeal to test AI agent security.
 
-**Total: 173 base probes (82 extraction + 91 injection) + 73 Pro probes (45 MCP + 28 RAG)**
+**Total: 173 base probes (82 extraction + 91 injection) + 86 Pro probes (45 MCP + 28 RAG + 13 Multimodal)**
 
 ---
 
@@ -134,6 +134,18 @@ RAG probes test how agents handle poisoned retrieved documents, memory poisoning
 
 ---
 
+## Multimodal Attack Probes (13) - Pro
+
+Multimodal probes test how agents handle adversarial content in images, audio, and steganographic payloads.
+
+| # | Category | Count | Technique |
+|---|----------|:-----:|-----------|
+| 1 | Image Prompt Injection | 5 | Text overlay, metadata, mind map, screenshot UI spoofing, adversarial patch |
+| 2 | Audio Jailbreaks | 4 | Narrative persona, cross-modal split, metadata manipulation, multilingual |
+| 3 | Steganographic Injection | 4 | LSB extraction, DCT frequency domain, neural steganography, low-contrast watermark |
+
+---
+
 ## Detection Method
 
 - **Extraction probes**: Deterministic n-gram matching against ground truth prompt. No LLM judge - 100% reproducible results.
@@ -144,8 +156,8 @@ RAG probes test how agents handle poisoned retrieved documents, memory poisoning
 
 ## Probe Count Summary
 
-| Tier | Extraction | Injection | MCP | RAG | Total |
-|------|:----------:|:---------:|:---:|:---:|:-----:|
-| **Free** | 82 | 91 | - | - | **173** |
-| **Pro** | 82 | 91 | 45 | 28 | **246** |
-| **Pro + Genome** | 82 | 91 | 45 | 28 | **246 + ~105 genome** |
+| Tier | Extraction | Injection | MCP | RAG | Multimodal | Total |
+|------|:----------:|:---------:|:---:|:---:|:----------:|:-----:|
+| **Free** | 82 | 91 | - | - | - | **173** |
+| **Pro** | 82 | 91 | 45 | 28 | 13 | **259** |
+| **Pro + Genome** | 82 | 91 | 45 | 28 | 13 | **259 + ~105 genome** |
