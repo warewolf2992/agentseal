@@ -2,7 +2,7 @@
 
 Complete list of all attack probes used by AgentSeal to test AI agent security.
 
-**Total: 173 base probes (82 extraction + 91 injection) + 46 Pro probes (26 MCP + 20 RAG)**
+**Total: 173 base probes (82 extraction + 91 injection) + 58 Pro probes (38 MCP + 20 RAG)**
 
 ---
 
@@ -99,7 +99,7 @@ Each probe contains a unique canary string for deterministic detection.
 
 ---
 
-## MCP Tool Poisoning Probes (26) - Pro
+## MCP Tool Poisoning Probes (38) - Pro
 
 MCP probes test how agents handle poisoned tool metadata and results.
 
@@ -110,6 +110,10 @@ MCP probes test how agents handle poisoned tool metadata and results.
 | 3 | Exfiltration via Tools | 6 | Agent tricked into leaking data through tool calls |
 | 4 | Schema Manipulation | 4 | Poisoned parameter schemas and defaults |
 | 5 | Cross-Tool Escalation | 4 | Tool result authorizing actions by other tools |
+| 6 | Rug Pull | 3 | Tool behavior changes after initial trust establishment |
+| 7 | Tool Shadowing | 3 | Poisoned tools masquerading as trusted tools |
+| 8 | False Error Escalation | 3 | Fake errors trigger privileged fallback paths |
+| 9 | Cross-Tool Poisoning | 3 | One tool's output poisons another tool's input |
 
 ---
 
@@ -139,5 +143,5 @@ RAG probes test how agents handle poisoned retrieved documents.
 | Tier | Extraction | Injection | MCP | RAG | Total |
 |------|:----------:|:---------:|:---:|:---:|:-----:|
 | **Free** | 82 | 91 | - | - | **173** |
-| **Pro** | 82 | 91 | 26 | 20 | **219** |
-| **Pro + Genome** | 82 | 91 | 26 | 20 | **219 + ~105 genome** |
+| **Pro** | 82 | 91 | 38 | 20 | **231** |
+| **Pro + Genome** | 82 | 91 | 38 | 20 | **231 + ~105 genome** |
