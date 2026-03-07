@@ -19,12 +19,6 @@
 
 AgentSeal is a security scanner for AI agents. It sends **191+ attack probes** to your agent and tells you exactly where it's vulnerable - so you can fix it before attackers find out.
 
-<p align="center">
-  <a href="https://agentseal.org">
-    <img src="assets/dashboard.png" alt="AgentSeal Dashboard" width="800" />
-  </a>
-</p>
-
 ---
 
 ## What does AgentSeal do?
