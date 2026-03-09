@@ -70,6 +70,10 @@ class TestPublicAPI:
         from agentseal import MCPServerResult
         assert MCPServerResult is not None
 
+    def test_shield(self):
+        from agentseal import Shield
+        assert Shield is not None
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # Canonical imports (new module paths)

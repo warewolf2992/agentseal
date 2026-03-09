@@ -325,6 +325,40 @@ def main():
         "--verbose", "-v", action="store_true",
         help="Show all items including safe ones",
     )
+    guard_parser.add_argument(
+        "--reset-baselines", action="store_true",
+        help="Reset all MCP server baselines (re-trust all servers)",
+    )
+
+    # ── shield command ───────────────────────────────────────────────
+    shield_parser = subparsers.add_parser(
+        "shield",
+        help="Continuously monitor your machine for AI agent threats",
+        description="Watches skill directories and MCP config files for changes. "
+                    "When a file changes, runs an incremental scan and sends "
+                    "desktop notifications. Foreground process - Ctrl+C to stop.\n\n"
+                    "Requires: pip install agentseal[shield]",
+    )
+    shield_parser.add_argument(
+        "--no-semantic", action="store_true",
+        help="Disable semantic analysis (faster but less accurate)",
+    )
+    shield_parser.add_argument(
+        "--no-notify", action="store_true",
+        help="Disable desktop notifications (terminal output only)",
+    )
+    shield_parser.add_argument(
+        "--debounce", type=float, default=2.0, metavar="SECONDS",
+        help="Seconds to wait after last change before scanning (default: 2.0)",
+    )
+    shield_parser.add_argument(
+        "--quiet", "-q", action="store_true",
+        help="Suppress terminal output (notifications only)",
+    )
+    shield_parser.add_argument(
+        "--reset-baselines", action="store_true",
+        help="Reset all MCP server baselines before starting",
+    )
 
     args = parser.parse_args()
 
@@ -340,6 +374,8 @@ def main():
         asyncio.run(_run_watch(args))
     elif args.command == "guard":
         _run_guard(args)
+    elif args.command == "shield":
+        _run_shield(args)
     else:
         _print_banner()
         parser.print_help()
@@ -358,6 +394,16 @@ def _run_guard(args):
     C = "\033[96m"     # Cyan
     B = "\033[1m"      # Bold
     RST = "\033[0m"    # Reset
+
+    # Handle --reset-baselines
+    if getattr(args, "reset_baselines", False):
+        from agentseal.baselines import BaselineStore
+        store = BaselineStore()
+        count = store.reset()
+        json_mode = getattr(args, "output", None) == "json"
+        if not json_mode:
+            print(f"  {D}Reset {count} baseline(s). All servers will be re-baselined.{RST}")
+            print()
 
     json_mode = getattr(args, "output", None) == "json"
     verbose = getattr(args, "verbose", False)
@@ -459,11 +505,30 @@ def _run_guard(args):
                 print(f"  {G}[OK]{RST} {mr.name:<25s} {G}SAFE{RST}")
         print()
 
+    # Toxic flows
+    if report.toxic_flows:
+        print(f"  {B}TOXIC FLOW RISKS{RST}")
+        for flow in report.toxic_flows:
+            level_color = R if flow.risk_level == "high" else Y
+            print(f"  {level_color}[{flow.risk_level.upper()}]{RST} {flow.title}")
+            print(f"       Servers: {', '.join(flow.servers_involved)}")
+            print(f"       {C}-> {flow.remediation}{RST}")
+        print()
+
+    # Baseline changes
+    if report.baseline_changes:
+        print(f"  {B}BASELINE CHANGES{RST}")
+        for change in report.baseline_changes:
+            print(f"  {Y}[!!]{RST} {change.server_name}: {change.detail}")
+        print()
+
     # Summary
     print(f"  {'─' * 48}")
 
     if report.has_critical:
         print(f"  {R}{B}{report.total_dangers} critical threat(s) found. Action required.{RST}")
+    elif report.total_toxic_flows > 0:
+        print(f"  {Y}{report.total_toxic_flows} toxic flow(s) detected. Review recommended.{RST}")
     elif report.total_warnings > 0:
         print(f"  {Y}{report.total_warnings} warning(s) found. Review recommended.{RST}")
     else:
@@ -471,6 +536,9 @@ def _run_guard(args):
 
     # Action items
     actions = report.all_actions
+    # Add toxic flow remediations
+    for flow in report.toxic_flows:
+        actions.append(flow.remediation)
     if actions:
         print()
         print(f"  {B}ACTIONS NEEDED:{RST}")
@@ -490,6 +558,83 @@ def _run_guard(args):
     # Exit code: 1 if critical threats found
     if report.has_critical:
         sys.exit(1)
+
+
+def _run_shield(args):
+    """Run the shield command — continuous filesystem monitoring."""
+    R = "\033[91m"
+    Y = "\033[93m"
+    G = "\033[92m"
+    D = "\033[90m"
+    B = "\033[1m"
+    C = "\033[96m"
+    RST = "\033[0m"
+
+    quiet = getattr(args, "quiet", False)
+
+    try:
+        from agentseal.shield import Shield, check_watchdog_available
+        check_watchdog_available()
+    except ImportError:
+        print(
+            f"{R}Error:{RST} agentseal shield requires the 'watchdog' package.\n"
+            f"Install with: {B}pip install agentseal[shield]{RST}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Handle --reset-baselines
+    if getattr(args, "reset_baselines", False):
+        from agentseal.baselines import BaselineStore
+        store = BaselineStore()
+        count = store.reset()
+        if not quiet:
+            print(f"  {D}Reset {count} baseline(s). All servers will be re-baselined.{RST}")
+            print()
+
+    if not quiet:
+        _print_banner(show_tagline=False)
+        print()
+        print(f"  {B}AgentSeal Shield{RST} — Continuous Monitoring")
+        print(f"  {'─' * 48}")
+        print()
+
+    def on_event(event_type, path, summary):
+        if quiet:
+            return
+        ts = time.strftime("%H:%M:%S")
+        if event_type == "threat":
+            print(f"  {D}[{ts}]{RST} {R}THREAT{RST} {path}")
+            print(f"           {R}{summary}{RST}")
+        elif event_type == "warning":
+            print(f"  {D}[{ts}]{RST} {Y}WARNING{RST} {path}")
+            print(f"           {Y}{summary}{RST}")
+        elif event_type == "clean":
+            print(f"  {D}[{ts}]{RST} {G}CLEAN{RST}   {path}")
+        elif event_type == "error":
+            print(f"  {D}[{ts}]{RST} {D}ERROR{RST}   {path} — {summary}")
+
+    shield = Shield(
+        semantic=not getattr(args, "no_semantic", False),
+        notify=not getattr(args, "no_notify", False),
+        debounce_seconds=getattr(args, "debounce", 2.0),
+        on_event=on_event,
+    )
+
+    dirs_watched, files_watched = shield.start()
+
+    if not quiet:
+        print(f"  {D}Watching {dirs_watched} directories for changes...{RST}")
+        print(f"  {D}Press Ctrl+C to stop.{RST}")
+        print()
+
+    shield.run_forever()
+
+    if not quiet:
+        print()
+        print(f"  {D}Shield stopped. {shield.scan_count} scans, "
+              f"{shield.threat_count} threats detected.{RST}")
+        print()
 
 
 def _resolve_prompt(args, require_url: bool = True) -> str | None:

@@ -150,6 +150,52 @@ class AgentConfigResult:
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# TOXIC FLOW MODELS
+# ═══════════════════════════════════════════════════════════════════════
+
+@dataclass
+class ToxicFlowResult:
+    """A detected dangerous combination of server capabilities."""
+    risk_level: str      # "high", "medium"
+    risk_type: str       # "data_exfiltration", "remote_code_execution", etc.
+    title: str
+    description: str
+    servers_involved: list[str]
+    remediation: str
+
+    def to_dict(self) -> dict:
+        return {
+            "risk_level": self.risk_level,
+            "risk_type": self.risk_type,
+            "title": self.title,
+            "description": self.description,
+            "servers_involved": self.servers_involved,
+            "remediation": self.remediation,
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# BASELINE CHANGE MODELS
+# ═══════════════════════════════════════════════════════════════════════
+
+@dataclass
+class BaselineChangeResult:
+    """A detected change in an MCP server's baseline."""
+    server_name: str
+    agent_type: str
+    change_type: str  # "config_changed", "binary_changed"
+    detail: str
+
+    def to_dict(self) -> dict:
+        return {
+            "server_name": self.server_name,
+            "agent_type": self.agent_type,
+            "change_type": self.change_type,
+            "detail": self.detail,
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # GUARD REPORT (top-level result)
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -161,6 +207,8 @@ class GuardReport:
     agents_found: list[AgentConfigResult]
     skill_results: list[SkillResult]
     mcp_results: list[MCPServerResult]
+    toxic_flows: list[ToxicFlowResult] = field(default_factory=list)
+    baseline_changes: list[BaselineChangeResult] = field(default_factory=list)
 
     @property
     def total_dangers(self) -> int:
@@ -205,8 +253,16 @@ class GuardReport:
 
         return actions
 
+    @property
+    def total_toxic_flows(self) -> int:
+        return len(self.toxic_flows)
+
+    @property
+    def total_baseline_changes(self) -> int:
+        return len(self.baseline_changes)
+
     def to_dict(self) -> dict:
-        return {
+        d = {
             "timestamp": self.timestamp,
             "duration_seconds": self.duration_seconds,
             "agents_found": [a.to_dict() for a in self.agents_found],
@@ -218,6 +274,11 @@ class GuardReport:
                 "total_safe": self.total_safe,
             },
         }
+        if self.toxic_flows:
+            d["toxic_flows"] = [f.to_dict() for f in self.toxic_flows]
+        if self.baseline_changes:
+            d["baseline_changes"] = [c.to_dict() for c in self.baseline_changes]
+        return d
 
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.to_dict(), indent=indent)

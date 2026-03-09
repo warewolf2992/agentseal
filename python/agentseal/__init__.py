@@ -31,9 +31,17 @@ from agentseal.guard_models import (
     GuardVerdict,
     SkillResult,
     MCPServerResult,
+    ToxicFlowResult,
+    BaselineChangeResult,
 )
 
-__version__ = "0.5.1"
+# Shield is only available when watchdog is installed
+try:
+    from agentseal.shield import Shield
+except ImportError:
+    Shield = None  # type: ignore[assignment,misc]
+
+__version__ = "0.5.2"
 __all__ = [
     "AgentValidator",
     "ScanReport",
@@ -52,6 +60,9 @@ __all__ = [
     "GuardVerdict",
     "SkillResult",
     "MCPServerResult",
+    "ToxicFlowResult",
+    "BaselineChangeResult",
+    "Shield",
 ]
 
 # Conditional export - only available when semantic deps are installed

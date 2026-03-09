@@ -17,15 +17,16 @@
   ╚═╝  ╚═╝  ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝
 ```
 
-AgentSeal is a security toolkit for AI agents. It scans your machine for dangerous skills and MCP configs, and tests your agent's resistance to prompt injection and extraction attacks.
+AgentSeal is a security toolkit for AI agents. It scans your machine for dangerous skills and MCP configs, detects toxic data flows, monitors for supply chain attacks, and tests your agent's resistance to prompt injection and extraction attacks.
 
 ---
 
-## NEW: `agentseal guard` - Machine Security Scan
+## `agentseal guard` - Machine Security Scan
 
 One command scans your entire machine for AI agent threats. No config, no API keys, no internet needed.
 
 ```bash
+pip install agentseal
 agentseal guard
 ```
 
@@ -33,6 +34,8 @@ agentseal guard
 - Auto-discovers **17 AI agents** (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code, Gemini CLI, Codex, Cline, Roo Code, Zed, Aider, Continue, Amp, OpenClaw, Kiro, OpenCode, and more)
 - Scans every **skill/rules file** for malware, credential theft, prompt injection, reverse shells, data exfiltration, and 9 other threat categories
 - Audits every **MCP server config** for sensitive path access, hardcoded API keys, overly broad permissions, and insecure connections
+- Detects **toxic data flows** across MCP servers (e.g. filesystem + slack = data exfiltration risk)
+- Tracks **MCP server baselines** to catch supply chain / rug pull attacks
 - Shows **red/yellow/green results** with numbered action items telling you exactly what to fix
 
 ```
@@ -53,24 +56,47 @@ agentseal guard
        -> Restrict 'filesystem' MCP server: remove .ssh from allowed paths.
   [OK] brave-search           SAFE
 
+  TOXIC FLOW RISKS
+  [HIGH] Data exfiltration path detected
+       Servers: filesystem, slack
+       -> Scope filesystem access to non-sensitive directories only.
+
   ------------------------------------------------
   1 critical threat(s) found. Action required.
 
   ACTIONS NEEDED:
   1. Remove this skill immediately and rotate all credentials.
   2. Restrict 'filesystem' MCP server: remove .ssh from allowed paths.
+  3. Scope filesystem access to non-sensitive directories only.
 ```
+
+## `agentseal shield` - Continuous Monitoring
+
+Watches your skill directories and MCP configs in real time. When a file changes, scans it instantly and sends a desktop notification if something is wrong.
 
 ```bash
-# JSON output for CI/automation (exit code 1 if threats found)
-agentseal guard --output json
-
-# Save report to file
-agentseal guard --save report.json
-
-# Skip semantic analysis (faster, pattern-only)
-agentseal guard --no-semantic
+pip install agentseal[shield]
+agentseal shield
 ```
+
+```
+  AgentSeal Shield - Continuous Monitoring
+  ------------------------------------------------
+  Watching 12 directories for changes...
+  Press Ctrl+C to stop.
+
+  [14:32:05] CLEAN   ~/.cursor/rules/code-review.md
+  [14:35:12] THREAT  ~/.cursor/mcp.json
+             MCP 'untrusted-tool': DANGER - Access to SSH private keys
+  [14:35:12] WARNING ~/.cursor/mcp.json
+             BASELINE: Config for 'filesystem' changed (command/args/env modified).
+```
+
+- Watches all 17 agent config paths automatically
+- Debounces rapid file changes (editors, git operations)
+- Native desktop notifications (macOS, Linux)
+- Runs baseline checks on every MCP config change
+- Detects toxic flows when server combinations change
 
 ---
 
@@ -202,7 +228,8 @@ AgentSeal supports multiple scan modes you can combine depending on your agent's
 
 | Command | Probes | What it tests | Tier |
 |---------|:------:|---------------|:----:|
-| `agentseal guard` | N/A | Machine scan - skills, MCP configs, 17 agents | Free |
+| `agentseal guard` | N/A | Machine scan - skills, MCP configs, toxic flows, baselines | Free |
+| `agentseal shield` | N/A | Continuous monitoring - watches files, detects changes in real time | Free |
 | `agentseal scan` | 191 | Base scan - 82 extraction + 109 injection probes | Free |
 | `agentseal scan --adaptive` | 191+ | + adaptive mutation transforms on blocked probes | Free |
 | `agentseal watch` | 5 | Canary regression scan - fast check with baseline comparison | Free |
@@ -222,6 +249,8 @@ The core scanner is **completely free** and open source. Pro unlocks advanced pr
 | Feature | Free | Pro |
 |---------|:----:|:---:|
 | Machine security scan (`agentseal guard`) | Yes | Yes |
+| Continuous monitoring (`agentseal shield`) | Yes | Yes |
+| Toxic flow detection & baseline tracking | Yes | Yes |
 | 191 base attack probes (extraction + injection) | Yes | Yes |
 | Adaptive mutations (`--adaptive`) | Yes | Yes |
 | Canary regression watch (`agentseal watch`) | Yes | Yes |
@@ -277,6 +306,28 @@ agentseal guard --verbose
 
 # Skip semantic analysis (faster)
 agentseal guard --no-semantic
+
+# Reset stored baselines (re-fingerprint all MCP servers)
+agentseal guard --reset-baselines
+```
+
+### Continuous Monitoring
+
+```bash
+# Watch all agent configs and skill files for changes
+agentseal shield
+
+# Without desktop notifications
+agentseal shield --no-notify
+
+# Custom debounce interval (seconds)
+agentseal shield --debounce 5
+
+# Quiet mode - only show threats
+agentseal shield --quiet
+
+# Reset baselines before starting
+agentseal shield --reset-baselines
 ```
 
 ### Scanning

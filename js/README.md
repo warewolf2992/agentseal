@@ -225,7 +225,7 @@ The open source scanner covers 173 probes. [AgentSeal Pro](https://agentseal.org
 
 [Start scanning at agentseal.org](https://agentseal.org)
 
-## NEW: `agentseal guard` (Python CLI)
+## `agentseal guard` - Machine Security Scan (Python CLI)
 
 One command scans your entire machine for AI agent threats. No config, no API keys needed.
 
@@ -234,15 +234,26 @@ pip install agentseal
 agentseal guard
 ```
 
-- Auto-discovers **17 AI agents** (Claude, Cursor, VS Code, Windsurf, Cline, Roo Code, Zed, and more)
+- Auto-discovers **17 AI agents** (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code, Gemini CLI, Codex, Cline, Roo Code, Zed, and more)
 - Scans every **skill/rules file** for malware, credential theft, prompt injection, reverse shells
 - Audits every **MCP server config** for sensitive path access, hardcoded API keys, broad permissions
+- Detects **toxic data flows** across MCP servers (e.g. filesystem + slack = data exfiltration risk)
+- Tracks **MCP server baselines** to catch supply chain / rug pull attacks
 - Red/yellow/green results with numbered action items
 
+## `agentseal shield` - Continuous Monitoring (Python CLI)
+
+Watches your skill directories and MCP configs in real time. Sends desktop notifications on threats.
+
 ```bash
-# Also available: prompt injection scanner
-agentseal scan --prompt "You are a helpful assistant" --model gpt-4o
+pip install agentseal[shield]
+agentseal shield
 ```
+
+- Watches all 17 agent config paths automatically
+- Debounces rapid file changes (editors, git operations)
+- Native desktop notifications (macOS, Linux)
+- Runs baseline + toxic flow checks on every MCP config change
 
 [View Python package on PyPI](https://pypi.org/project/agentseal/)
 
